@@ -18,8 +18,7 @@ def init_db():
         PASSWORD TEXT,
         PHONE TEXT,
         STATUS_ENTERING TEXT,
-        BUYING TEXT,
-        NOTE_TEXT TEXT
+        BUYING TEXT
     )''')
     conn.commit()
     conn.close()
@@ -27,11 +26,13 @@ def init_db():
 
 init_db()
 
+
 home_page = '''
 <h1>Добро пожаловать на мероприятие!</h1>
 <p>Информация о событии...</p>
 <a href="/register">Регистрация</a> | <a href="/login">Вход</a>
 '''
+
 
 register_form = '''
 <h2>Регистрация</h2>
@@ -134,36 +135,18 @@ def cabinet():
 def note():
     if 'user' not in session:
         return redirect('/login')
-
-    user_id = session['user']['id']
-    saved_note = ''
-
-    # Загрузка текущего текста из базы
-    conn = sqlite3.connect('members.db')
-    c = conn.cursor()
     if request.method == 'POST':
-        new_note = request.form['note']
-        c.execute('UPDATE MEMBERS SET NOTE_TEXT=? WHERE ID=?', (new_note, user_id))
-        conn.commit()
-        saved_note = new_note  # Отображать обновлённый текст
-        message = "Текст сохранён.<br><br>"
-    else:
-        c.execute('SELECT NOTE_TEXT FROM MEMBERS WHERE ID=?', (user_id,))
-        row = c.fetchone()
-        if row and row[0]:
-            saved_note = row[0]
-        message = ""
-
-    conn.close()
-
-    return f'''
-        {message}
+        return f'''
+            Текст сохранён: {request.form['note']}<br><br>
+            <a href="/cabinet">Вернуться в кабинет</a>
+        '''
+    return '''
         <form method="post">
             Ваш текст:<br>
-            <textarea name="note" rows="10" cols="40">{saved_note}</textarea><br>
+            <textarea name="note"></textarea><br>
             <input type="submit" value="Сохранить">
         </form>
-        <br>
+<br>
         <a href="/cabinet">Вернуться в кабинет</a>
     '''
 
